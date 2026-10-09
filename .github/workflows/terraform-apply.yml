@@ -1,0 +1,31 @@
+name: Terraform Apply
+
+on:
+  push:
+    paths:
+      - 'infrastructure/**'
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Prepare Key
+        run: echo "${{ secrets.YC_SA_KEY }}" > key.json
+
+      - name: Terraform Init
+        run: |
+          cd infrastructure
+          terraform init
+        env:
+          TF_VAR_sa_key_file: "./key.json" # Путь к файлу с ключом
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan

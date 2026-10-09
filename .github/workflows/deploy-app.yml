@@ -1,0 +1,55 @@
+name: Deploy Test App
+
+on:
+  push:
+    paths:
+      - 'test-app/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. Настройка Yandex Cloud CLI (для доступа к K8s)
+      - name: Install Yandex Cloud CLI
+        run: |
+          wget -O /usr/local/bin/yc https://github.com/yandex-cloud/cli/releases/download/v0.238.0/yc_linux_amd64
+          chmod +x /usr/local/bin/yc
+          echo "${{ secrets.YC_SA_KEY_CONTENT }}" > sa_key.json
+          yc config profile create ci-profile --folder-id ${{ secrets.YC_FOLDER_ID }} --cloud-id ${{ secrets.YC_CLOUD_ID }} --sa-key-file sa_key.json
+          yc config use ci-profile
+
+      # 2. Сборка и пуш образа в YCR
+      - name: Build and Push to YCR
+        run: |
+          IMAGE_ID="cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/test-app:${{ github.sha }}"
+          
+          # Логин в YCR через токен
+          export TOKEN=$(yc container registry get-access-token --registry-id ${{ secrets.YCR_REGISTRY_ID }} --output-format yaml | grep token | awk '{print $2}')
+          echo "$TOKEN" | docker login -u iam-token --password-stdin cr.yandex
+          
+          docker build -t $IMAGE_ID ./test-app
+          docker push $IMAGE_ID
+
+      # 3. Деплой в Kubernetes
+      - name: Setup Kubeconfig
+        run: |
+          # Получаем конфиг для доступа к кластеру
+          yc k8s kubeconfig init --name ci-runner --id ${{ secrets.YC_CLUSTER_ID }}
+          # Устанавливаем kubectl (ubuntu-latest не всегда содержит его по умолчанию)
+          sudo apt-get update && sudo apt-get install -y kubectl
+
+      - name: Deploy
+        run: |
+          IMAGE_ID="cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/test-app:${{ github.sha }}"
+          
+          # Меняем заглушку в YAML на реальный путь к образу
+          sed -i "s|IMAGE_PLACEHOLDER|$IMAGE_ID|g" test-app/k8s-manifests/app.yaml
+          
+          # Применяем манифест
+          kubectl apply -f test-app/k8s-manifests/app.yaml
+          
+          # Ждем готовности подов
+          kubectl rollout status deployment/test-nginx

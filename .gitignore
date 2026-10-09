@@ -1,0 +1,18 @@
+sa_key.json
+/main_infrastructure/terraform.tfvars
+/infra_bootstrap/terraform.tfvars
+/main_infrastructure/.terraform
+# Секреты
+sa_key.json
+*.key
+*.pem
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# IDE
+.idea/
+.vscode/
