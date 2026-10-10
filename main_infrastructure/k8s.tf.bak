@@ -1,0 +1,56 @@
+resource "yandex_kubernetes_cluster" "cluster" {
+  name        = "my-cluster"
+  description = "Diploma Cluster"
+  network_id  = yandex_vpc_network.default.id
+
+  master {
+    version = "1.33"
+    public_ip = true
+    
+    # Ставим Мастер в зону B
+    master_location {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.subnet-a.id
+    }
+  }
+
+  service_account_id      = var.node_sa_id
+  node_service_account_id = var.node_sa_id
+}
+
+resource "yandex_kubernetes_node_group" "workers" {
+  cluster_id = yandex_kubernetes_cluster.cluster.id
+  name       = "workers"
+
+  instance_template {
+    platform_id = "standard-v3"
+    
+    network_interface {
+      nat        = true
+      # Используем подсеть B
+      subnet_ids = [yandex_vpc_subnet.subnet-e.id]
+    }
+
+    resources {
+      memory = 4
+      cores  = 2
+    }
+
+    boot_disk {
+      type = "network-ssd"
+      size = 50
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 2
+    }
+  }
+
+#  allocation_policy {
+    # Разрешаем ноды только в зоне B
+##     zone = "ru-central1-a"
+ #   }
+ # }
+}

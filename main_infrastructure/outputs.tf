@@ -11,7 +11,7 @@ output "subnet_ids" {
   value = [
     yandex_vpc_subnet.subnet-a.id, 
     yandex_vpc_subnet.subnet-b.id,
-    yandex_vpc_subnet.subnet-d.id
+    yandex_vpc_subnet.subnet-e.id
   ]
 }
 variable "node_sa_id" {
