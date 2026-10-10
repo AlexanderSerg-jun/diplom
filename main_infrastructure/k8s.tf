@@ -29,7 +29,6 @@ resource "yandex_kubernetes_node_group" "workers" {
       nat        = true
       # Все 3 подсети
       subnet_ids = [
-        yandex_vpc_subnet.subnet-a.id,
         yandex_vpc_subnet.subnet-b.id,
         yandex_vpc_subnet.subnet-d.id
       ]
@@ -53,10 +52,6 @@ resource "yandex_kubernetes_node_group" "workers" {
   }
   # Убрали allocation_policy
   allocation_policy {
-  location {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.subnet-a.id
-  }
   location {
     zone      = "ru-central1-b"
     subnet_id = yandex_vpc_subnet.subnet-b.id
