@@ -7,7 +7,7 @@ resource "yandex_kubernetes_cluster" "cluster" {
   service_account_id      = var.node_sa_id
 
   master {
-    version = "1.32" # Проверьте версию
+    version = "1.33" # Проверьте версию
     public_ip = true
     
     # Указываем только ДОСТУПНЫЕ зоны. 
@@ -52,4 +52,18 @@ resource "yandex_kubernetes_node_group" "workers" {
     }
   }
   # Убрали allocation_policy
+  allocation_policy {
+  location {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.subnet-a.id
+  }
+  location {
+    zone      = "ru-central1-b"
+    subnet_id = yandex_vpc_subnet.subnet-b.id
+  }
+  location {
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.subnet-d.id
+  }
+}
 }
