@@ -3,15 +3,15 @@ output "cluster_id" {
 }
 
 output "cluster_public_ip" {
-  # В версии 0.238 public_ip это просто строка
+  
   value = yandex_kubernetes_cluster.cluster.master[0].public_ip
 }
 
 output "subnet_ids" {
   value = [
-    yandex_vpc_subnet.subnet-a.id, 
-    yandex_vpc_subnet.subnet-b.id,
-    yandex_vpc_subnet.subnet-d.id
+    yandex_vpc_subnet.subnet-b.id, 
+    yandex_vpc_subnet.subnet-d.id,
+    yandex_vpc_subnet.subnet-e.id
   ]
 }
 variable "node_sa_id" {

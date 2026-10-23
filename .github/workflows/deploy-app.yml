@@ -46,10 +46,10 @@ jobs:
           IMAGE_ID="cr.yandex/${{ secrets.YCR_REGISTRY_ID }}/test-app:${{ github.sha }}"
           
           # Меняем заглушку в YAML на реальный путь к образу
-          sed -i "s|IMAGE_PLACEHOLDER|$IMAGE_ID|g" test-app/k8s-manifests/app.yaml
+          sed -i "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_ID|g" test-app/k8s-manifest/app-deployment.yml
           
           # Применяем манифест
-          kubectl apply -f test-app/k8s-manifests/app.yaml
+          kubectl apply -f test-app/k8s-manifest/app-deployment.yml
           
           # Ждем готовности подов
-          kubectl rollout status deployment/test-nginx
+          kubectl rollout status deployment/test-app

@@ -15,12 +15,8 @@ provider "yandex" {
   folder_id                = var.folder_id
   zone                     = "ru-central1-a"
 }
-# Создаем бакет в Object Storage
+
 resource "yandex_storage_bucket" "tf_state" {
   bucket = var.bucket_name
 }
 
-# Важно: Бакет должен быть публичным только для чтения? Нет.
-# Для Terraform нам нужен доступ через API. Object Storage по умолчанию приватный.
-# Чтобы Terraform (через S3 backend) мог писать туда, ему нужны права.
-# SA уже имеет роль editor, этого достаточно.

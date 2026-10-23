@@ -11,5 +11,5 @@ variable "folder_id" {
 variable "bucket_name" {
   description = "Name for the State Bucket"
   type        = string
-  default     = "my-tf-state-bucket-unique-name" # Измените на уникальное имя!
+  default     = "bucket-netology" 
 }

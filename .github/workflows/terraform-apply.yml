@@ -3,7 +3,7 @@ name: Terraform Apply
 on:
   push:
     paths:
-      - 'infrastructure/**'
+      - 'main_infrastructure/**'
 
 jobs:
   apply:
@@ -22,8 +22,7 @@ jobs:
           cd infrastructure
           terraform init
         env:
-          TF_VAR_sa_key_file: "./key.json" # Путь к файлу с ключом
-
+          TF_VAR_sa_key_file: "./key.json" 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
